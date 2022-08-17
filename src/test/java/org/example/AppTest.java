@@ -6,9 +6,11 @@ import io.appium.java_client.remote.MobileCapabilityType;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -65,7 +67,7 @@ public class AppTest {
         appiumDriver.manage().timeouts().implicitlyWait(Duration.ofSeconds(2));
         String result = webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("com.google.android.calculator:id/result_final"))).getText();
 
-
+        Assert.assertEquals(result,1+1);
         System.out.println("The result is: " + result);
     }
 
@@ -77,6 +79,8 @@ public class AppTest {
         Thread.sleep(Duration.ofSeconds(2).toMillis());
         webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.name("q"))).sendKeys(Keys.ENTER);
         Thread.sleep(Duration.ofSeconds(4).toMillis());
+        WebElement element = webDriverWait.until(ExpectedConditions.elementToBeClickable(By.linkText("Java Hello World - Your First Java Program - Programiz")));
+        Assert.assertTrue(element.isDisplayed());
     }
 
     @AfterTest
