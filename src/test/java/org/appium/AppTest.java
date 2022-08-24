@@ -1,32 +1,47 @@
-package org.example;
+package org.appium;
 
 
 import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.remote.MobileCapabilityType;
 import io.github.bonigarcia.wdm.WebDriverManager;
+import common.csvUtils.CsvUtils;
+import pages.google.HomePage;
+import pages.google.SearchResultsPage;
 import org.openqa.selenium.By;
-import org.openqa.selenium.Keys;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import java.net.MalformedURLException;
+import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public class AppTest {
     private AppiumDriver appiumDriver;
     private WebDriverWait webDriverWait;
     private DesiredCapabilities desiredCapabilities;
 
-    @BeforeClass
-    public void setup() throws MalformedURLException {
+    private HomePage homePage;
+    private SearchResultsPage searchResultsPage;
+    private List<Map<String,String>> csvData;
+    private CsvUtils csvUtils;
 
+
+    @BeforeClass
+    public void setup() throws IOException {
+        String currentDir = Paths.get(System.getProperty("user.dir"),"/CsvFiles","/google","/google.csv").toFile().getPath();
+        csvUtils = new CsvUtils();
+        csvData = csvUtils.getCsvData(currentDir);
         boolean webExecution = true;
         desiredCapabilities = new DesiredCapabilities();
         if (webExecution) {
@@ -55,6 +70,14 @@ public class AppTest {
         appiumDriver = new AppiumDriver(new URL("http://localhost:4723/wd/hub"), desiredCapabilities);
         webDriverWait = new WebDriverWait(appiumDriver, Duration.ofSeconds(10));
         System.out.println("Application Started");
+        homePage = new HomePage(appiumDriver);
+        searchResultsPage = new SearchResultsPage(appiumDriver);
+    }
+
+    @DataProvider
+    public Iterator<Object[]> getTestData(){
+        ArrayList<Object[]> dataIteration = csvUtils.fillDataProviderIterations();
+        return dataIteration.iterator();
     }
 
     @Test
@@ -71,16 +94,16 @@ public class AppTest {
         System.out.println("The result is: " + result);
     }
 
-    @Test
-    public void testWebAppium() throws InterruptedException {
+    @Test(dataProvider = "getTestData")
+    public void testWebAppium(int iteration) throws InterruptedException {
+        Map<String,String> currentRow = csvData.get(iteration);
+        String textToSearch = currentRow.get("SearchText");
+        String linkText = currentRow.get("LinkTextToValidate");
         appiumDriver.navigate().to("https://www.google.com");
-        appiumDriver.manage().timeouts().implicitlyWait(Duration.ofSeconds(3));
-        webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.name("q"))).sendKeys("Hello world on Java");
-        Thread.sleep(Duration.ofSeconds(2).toMillis());
-        webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.name("q"))).sendKeys(Keys.ENTER);
-        Thread.sleep(Duration.ofSeconds(4).toMillis());
-        WebElement element = webDriverWait.until(ExpectedConditions.elementToBeClickable(By.linkText("Java Hello World - Your First Java Program - Programiz")));
-        Assert.assertTrue(element.isDisplayed());
+        homePage.waitForPage(3);
+        homePage.search(textToSearch);
+        homePage.waitForPage(3);
+        Assert.assertTrue(searchResultsPage.pageByLinkTextIsDisplayed(linkText));
     }
 
     @AfterTest
