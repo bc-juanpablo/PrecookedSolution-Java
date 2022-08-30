@@ -42,7 +42,7 @@ public class AppTest {
         String currentDir = Paths.get(System.getProperty("user.dir"),"/CsvFiles","/google","/google.csv").toFile().getPath();
         csvUtils = new CsvUtils();
         csvData = csvUtils.getCsvData(currentDir);
-        boolean webExecution = true;
+        boolean webExecution = false;
         desiredCapabilities = new DesiredCapabilities();
         if (webExecution) {
             WebDriverManager wdm = WebDriverManager.chromedriver().browserVersion("103");
@@ -52,18 +52,23 @@ public class AppTest {
             desiredCapabilities.setCapability(MobileCapabilityType.BROWSER_NAME, "chrome");
             desiredCapabilities.setCapability("version", "104");
             desiredCapabilities.setCapability("chromedriverExecutable", chromedriverPath);
+            desiredCapabilities.setCapability("deviceName", "edson");
+            desiredCapabilities.setCapability("udid", "df5d8e7a");
+            desiredCapabilities.setCapability("platformName", "Android");
+            desiredCapabilities.setCapability("platformVersion", "12");
 
         } else {
             desiredCapabilities.setCapability("appPackage", "com.google.android.calculator");
             desiredCapabilities.setCapability("appActivity", "com.android.calculator2.Calculator");
             desiredCapabilities.setCapability("noReset ", true);
+            desiredCapabilities.setCapability("deviceName", "sdk_gphone64_x86_64");
+            desiredCapabilities.setCapability("udid", "emulator-5554");
+            desiredCapabilities.setCapability("platformName", "Android");
+            desiredCapabilities.setCapability("platformVersion", "12");
         }
         //df5d8e7a id emulator-5554
         //edson name sdk_gphone64_x86_64
-        desiredCapabilities.setCapability("deviceName", "edson");
-        desiredCapabilities.setCapability("udid", "df5d8e7a");
-        desiredCapabilities.setCapability("platformName", "Android");
-        desiredCapabilities.setCapability("platformVersion", "12");
+
 
         //
         //
